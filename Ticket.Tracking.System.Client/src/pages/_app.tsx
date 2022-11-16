@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
 
 import '../../styles/globals.css';
-import Navbar from '../components/Navbar';
 import { CurrentUserResponse } from '../models/user.model';
 const initaluser: CurrentUserResponse = {
   email: '',
@@ -18,7 +17,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="bg-zinc-800 min-h-screen min-w-full">
-        <Navbar />
         <Component {...pageProps} />
       </div>
     </QueryClientProvider>

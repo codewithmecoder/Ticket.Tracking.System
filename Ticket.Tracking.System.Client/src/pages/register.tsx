@@ -9,6 +9,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import Welcome from '../components/Welcome';
 import { RegisterInterface } from '../models/auth.model';
 import { registerUser } from '../services/auth.service';
+import { setItem } from '../utils/tokenStorage';
 
 const Register = () => {
   const router = useRouter();
@@ -40,7 +41,7 @@ const Register = () => {
 
   const mutation = useMutation(registerUser, {
     onSuccess: (e) => {
-      // setItem('jwtToken', e.data.token);
+      setItem('jwtToken', e.data.token);
       router.push('/');
     },
   });
