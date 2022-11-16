@@ -27,6 +27,29 @@ export const updateIsSovled = (ticket: void) => {
   const update: any = ticket;
   return axiosInstance.put(
     `/api/ticket/MarkAsSolved/${update.id}/${update.isSolved}`,
+    {},
+    {
+      headers: { Authorization: `bearer ${getItem('jwtToken')}` },
+    }
+  );
+};
+
+export const updateIsSovledTestCase = (ticket: void) => {
+  const update: any = ticket;
+  return axiosInstance.put(
+    `/api/ticket/ResolveTicketTypeTestCase/${update.id}/${update.isSolved}`,
+    {},
+    {
+      headers: { Authorization: `bearer ${getItem('jwtToken')}` },
+    }
+  );
+};
+
+export const updateIsSovledFeatureRequest = (ticket: void) => {
+  const update: any = ticket;
+  return axiosInstance.put(
+    `/api/ticket/ResolveTicketTypeFeatureRequest/${update.id}/${update.isSolved}`,
+    {},
     {
       headers: { Authorization: `bearer ${getItem('jwtToken')}` },
     }

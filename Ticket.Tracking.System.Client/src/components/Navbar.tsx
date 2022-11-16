@@ -28,14 +28,11 @@ const Navbar = ({ user }: Props) => {
       <div>
         <p className="text-gray-300 hover:text-white">
           <Link href="/">
-            <b>Ticket Tracking System</b>
+            <b>Ticket Tracking System {user?.userName}</b>
           </Link>
         </p>
       </div>
       <div className="hidden md:flex gap-10">
-        <p className="text-gray-400 hover:text-white">
-          <Link href="/ticket">Tickets</Link>
-        </p>
         {isAdmin(user?.userRoles) && (
           <p className="text-gray-400 hover:text-white">
             <Link href="/settings">Settings</Link>
@@ -68,12 +65,11 @@ const Navbar = ({ user }: Props) => {
             openMenu ? 'flex' : 'hidden'
           } flex flex-col md:hidden gap-5 absolute right-8 top-0 bg-neutral-800 p-5 rounded-md`}
         >
-          <p className="text-gray-400 hover:text-white">
-            <Link href="/ticket">Tickets</Link>
-          </p>
-          <p className="text-gray-400 hover:text-white">
-            <Link href="/settings">Settings</Link>
-          </p>
+          {isAdmin(user?.userRoles) && (
+            <p className="text-gray-400 hover:text-white">
+              <Link href="/settings">Settings</Link>
+            </p>
+          )}
           <p className="text-gray-400 hover:text-white">
             {!user?.userName ? (
               <Link href="/login">Login</Link>

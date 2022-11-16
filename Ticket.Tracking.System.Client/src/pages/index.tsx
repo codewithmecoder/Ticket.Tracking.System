@@ -23,6 +23,8 @@ import {
   deleteTicket,
   getTicket,
   updateIsSovled,
+  updateIsSovledFeatureRequest,
+  updateIsSovledTestCase,
   updateTicket,
 } from '../services/ticket.service';
 import { Constants } from '../utils/constants';
@@ -137,7 +139,22 @@ const Home: NextPage = () => {
       ticketsQuery.refetch();
     },
   });
-  //updateTicket
+
+  const updateIsSovledTestCaseMutation = useMutation(updateIsSovledTestCase, {
+    onSuccess: () => {
+      ticketsQuery.refetch();
+    },
+  });
+
+  const updateIsSovledFeatureRequestMutation = useMutation(
+    updateIsSovledFeatureRequest,
+    {
+      onSuccess: () => {
+        ticketsQuery.refetch();
+      },
+    }
+  );
+  //updateIsSovledTestCase
 
   const ticketsQuery = useQuery([Constants.queries.getBug], getTicket, {
     cacheTime: 0,
@@ -228,7 +245,9 @@ const Home: NextPage = () => {
                   onClick={() => setCreateNewBugModal(true)}
                 />
               ) : (
-                <div className="mt-4 w-full md:w-[50%] inline-block px-6 py-2.5" />
+                <div className="w-full md:w-[50%] inline-block px-6 py-2.5">
+                  <p>Bugs</p>
+                </div>
               )}
             </div>
             <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
@@ -297,6 +316,7 @@ const Home: NextPage = () => {
                                   isSolved: isChecked,
                                 } as any);
                               }}
+                              disabled={updateIsSovledMutation.isLoading}
                             />
                           )}
                         </div>
@@ -315,10 +335,12 @@ const Home: NextPage = () => {
                   onClick={() => setCreateNewFeatureRequestModal(true)}
                 />
               ) : (
-                <div className="mt-4 w-full md:w-[50%] inline-block px-6 py-2.5" />
+                <div className="w-full md:w-[50%] inline-block px-6 py-2.5">
+                  <p>Feature Requests</p>
+                </div>
               )}
             </div>
-            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
+            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
               {ticketsQuery.isLoading && <Loading size="medium" />}
               {ticketsQuery.isSuccess && (
                 <>
@@ -327,9 +349,9 @@ const Home: NextPage = () => {
                     .map((value, index) => (
                       <div
                         key={`ticket_${value.id}_${index}`}
-                        className="grid grid-cols-4 border-b-2 p-5"
+                        className="grid grid-cols-6 border-b-2 p-5"
                       >
-                        <div className="col-span-3 flex flex-col items-start justify-start">
+                        <div className="col-span-4 flex flex-col items-start justify-start">
                           <p className="p-1 flex items-center gap-2">
                             <b>Summay</b>
                             <span>
@@ -348,26 +370,48 @@ const Home: NextPage = () => {
                             {value.description}
                           </p>
                         </div>
-                        {isPM(
-                          (user.data?.data as CurrentUserResponse)?.userRoles
-                        ) && (
-                          <div className="flex items-center mr-auto gap-4">
-                            <BiTrash
-                              className="w-7 h-7 text-red-600 cursor-pointer"
-                              onClick={() => {
-                                setDeleteTicketObj(value);
-                                setShowDeleteModal(true);
+                        <div className="flex items-center w-full justify-end gap-2 col-span-2">
+                          {isPM(
+                            (user.data?.data as CurrentUserResponse)?.userRoles
+                          ) && (
+                            <div className="flex items-center mr-auto gap-4">
+                              <BiTrash
+                                className="w-7 h-7 text-red-600 cursor-pointer"
+                                onClick={() => {
+                                  setDeleteTicketObj(value);
+                                  setShowDeleteModal(true);
+                                }}
+                              />
+                              <BiEdit
+                                className="w-7 h-7 text-yellow-300 cursor-pointer"
+                                onClick={() => {
+                                  setUpdateTicketObj(value);
+                                  setCreateNewFeatureRequestModal(true);
+                                }}
+                              />
+                            </div>
+                          )}
+                          {isRD(
+                            (user.data?.data as CurrentUserResponse)?.userRoles
+                          ) && (
+                            <Checkbox
+                              disabled={
+                                updateIsSovledFeatureRequestMutation.isLoading
+                              }
+                              id={`check_${value.id}`}
+                              label="Done"
+                              name="isSolved"
+                              checked={value.isSovled}
+                              onChange={(e) => {
+                                var isChecked = e.target.checked;
+                                updateIsSovledFeatureRequestMutation.mutate({
+                                  id: value.id,
+                                  isSolved: isChecked,
+                                } as any);
                               }}
                             />
-                            <BiEdit
-                              className="w-7 h-7 text-yellow-300 cursor-pointer"
-                              onClick={() => {
-                                setUpdateTicketObj(value);
-                                setCreateNewFeatureRequestModal(true);
-                              }}
-                            />
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     ))}
                 </>
@@ -383,7 +427,9 @@ const Home: NextPage = () => {
                   onClick={() => setCreateNewTestCaseModal(true)}
                 />
               ) : (
-                <div className="mt-4 w-full md:w-[50%] inline-block px-6 py-2.5" />
+                <div className="w-full md:w-[50%] inline-block px-6 py-2.5">
+                  <p>Test Cases</p>
+                </div>
               )}
             </div>
             <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
@@ -395,9 +441,9 @@ const Home: NextPage = () => {
                     .map((value, index) => (
                       <div
                         key={`ticket_${value.id}_${index}`}
-                        className="grid grid-cols-4 border-b-2 p-5"
+                        className="grid grid-cols-6 border-b-2 p-5"
                       >
-                        <div className="col-span-3 flex flex-col items-start justify-start">
+                        <div className="col-span-4 flex flex-col items-start justify-start">
                           <p className="p-1 flex items-center gap-2">
                             <b>Summay</b>
                             <span>
@@ -419,7 +465,7 @@ const Home: NextPage = () => {
                         {isQA(
                           (user.data?.data as CurrentUserResponse)?.userRoles
                         ) && (
-                          <div className="flex items-center mr-auto gap-4">
+                          <div className="flex items-center mr-auto gap-2 col-span-2">
                             <BiTrash
                               className="w-7 h-7 text-red-600 cursor-pointer"
                               onClick={() => {
@@ -432,6 +478,22 @@ const Home: NextPage = () => {
                               onClick={() => {
                                 setUpdateTicketObj(value);
                                 setCreateNewTestCaseModal(true);
+                              }}
+                            />
+                            <Checkbox
+                              disabled={
+                                updateIsSovledTestCaseMutation.isLoading
+                              }
+                              id={`check_${value.id}`}
+                              label="Done"
+                              name="isSolved"
+                              checked={value.isSovled}
+                              onChange={(e) => {
+                                var isChecked = e.target.checked;
+                                updateIsSovledTestCaseMutation.mutate({
+                                  id: value.id,
+                                  isSolved: isChecked,
+                                } as any);
                               }}
                             />
                           </div>

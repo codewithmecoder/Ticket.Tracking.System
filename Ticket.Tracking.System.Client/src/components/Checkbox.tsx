@@ -6,8 +6,16 @@ interface Props {
   label: string;
   checked?: boolean;
   id?: string;
+  disabled?: boolean;
 }
-const Checkbox = ({ label, onChange, name, id, checked = false }: Props) => {
+const Checkbox = ({
+  label,
+  onChange,
+  name,
+  id,
+  disabled,
+  checked = false,
+}: Props) => {
   return (
     <div className="flex items-center">
       <input
@@ -17,6 +25,7 @@ const Checkbox = ({ label, onChange, name, id, checked = false }: Props) => {
         onChange={onChange}
         name={name}
         checked={checked}
+        disabled={disabled}
       />
       <label
         htmlFor={`${id ?? 'checked-checkbox'}`}
