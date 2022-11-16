@@ -80,8 +80,11 @@ public class AuthController : ControllerBase
                     HttpOnly = true,
                     Path = "/",
                     Secure = true,
-                    SameSite = SameSiteMode.Lax,
-                    MaxAge = TimeSpan.MaxValue
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.MaxValue,
+                    Domain = "*",
+                    Expires = DateTimeOffset.Now.AddDays(10),
+                    IsEssential = true,
 
                 });
                 return Ok(new AuthResult()
@@ -129,8 +132,11 @@ public class AuthController : ControllerBase
                     HttpOnly = true,
                     Path = "/",
                     Secure = true,
-                    SameSite = SameSiteMode.Lax,
-                    MaxAge = TimeSpan.MaxValue
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.MaxValue,
+                    Domain = "*",
+                    Expires = DateTimeOffset.Now.AddDays(10),
+                    IsEssential = true,
 
                 });
                 return Ok(new AuthResult()
