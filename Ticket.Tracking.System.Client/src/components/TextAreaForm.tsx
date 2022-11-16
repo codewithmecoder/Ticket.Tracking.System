@@ -11,6 +11,7 @@ interface Props {
   readonly?: boolean;
   className?: string;
   onClick?: MouseEventHandler<HTMLTextAreaElement>;
+  lableColor?: string;
 }
 
 const TextAreaForm = ({
@@ -24,6 +25,7 @@ const TextAreaForm = ({
   readonly,
   className,
   onClick,
+  lableColor,
 }: Props) => {
   const [focused, setFocused] = useState(false);
   const handleFocus = () => {
@@ -31,7 +33,10 @@ const TextAreaForm = ({
   };
   return (
     <div className="w-full">
-      <label htmlFor="" className="form-label inline-block mb-2 text-white">
+      <label
+        htmlFor=""
+        className={`form-label inline-block mb-2 ${lableColor ?? 'text-white'}`}
+      >
         {label} <span className="text-red-600">{required ? '*' : ''}</span>
       </label>
       <textarea

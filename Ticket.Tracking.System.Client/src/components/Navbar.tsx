@@ -14,10 +14,6 @@ const Navbar = ({ user }: Props) => {
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
   const openMenuHandler = () => setOpenMenu((prev) => !prev);
-
-  // const [userdata, setUserdata] = useState<CurrentUserResponse | null>();
-  // const user = useQuery([Constants.queries.getMe], getLoginUser);
-  // const userdata: CurrentUserResponse = user.data?.data;
   useEffect(() => {
     var token = getItem('jwtToken');
     if (!token) router.push('/login');
@@ -28,7 +24,7 @@ const Navbar = ({ user }: Props) => {
     router.push('/login');
   };
   return (
-    <div className="m-auto md:max-w-[80%] lg:max-w-[60%] bg-neutral-800 w-[100%] max-h-14 h-14 rounded-md flex items-center justify-between px-2">
+    <div className="m-auto md:max-w-[90%] lg:max-w-[80%] bg-neutral-800 w-[100%] max-h-14 h-14 rounded-md flex items-center justify-between px-2">
       <div>
         <p className="text-gray-300 hover:text-white">
           <Link href="/">
