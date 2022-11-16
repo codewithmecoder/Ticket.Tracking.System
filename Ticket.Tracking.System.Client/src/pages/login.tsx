@@ -37,7 +37,7 @@ const Login = () => {
     },
   });
 
-  const submitHadler = (e: any) => {
+  const submitHadler = async (e: any) => {
     e.preventDefault();
     mutation.mutate(loginValues as any);
   };
