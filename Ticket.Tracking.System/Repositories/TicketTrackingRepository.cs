@@ -21,6 +21,11 @@ public class TicketTrackingRepository : BaseEfRepository<TicketTracking>, ITicke
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<TicketTracking?> GetTicketTrackingByIdAndTypeAsync(int id, string type)
+    {
+        return await _dbContext.TicketTrackings!.FirstOrDefaultAsync(x => x.Id == id && x.Type == type);
+    }
+
     public async Task<TicketTracking?> GetTicketTrackingByIdAsync(int id)
     {
         return await _dbContext.TicketTrackings!.FirstOrDefaultAsync(x => x.Id == id);

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Ticket.Tracking.System.Data;
@@ -11,9 +12,10 @@ using Ticket.Tracking.System.Data;
 namespace Ticket.Tracking.System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221116045303_RemoveTableTeam")]
+    partial class RemoveTableTeam
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,17 +238,8 @@ namespace Ticket.Tracking.System.Migrations
                     b.Property<bool>("IsSovled")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("Severity")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateAt")

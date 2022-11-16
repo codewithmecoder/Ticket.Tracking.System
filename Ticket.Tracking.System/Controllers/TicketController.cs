@@ -27,7 +27,8 @@ public class TicketController : ControllerBase
         return Ok(teams);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet]
+    [Route("{id:int}")]
     public async Task<ActionResult<TicketTracking?>> Get(int id)
     {
         var ticket = await _context.GetTicketTrackingByIdAsync(id);
@@ -57,6 +58,83 @@ public class TicketController : ControllerBase
         return CreatedAtAction("Get", ticket.Id, ticket);
     }
 
+    [HttpPost]
+    [Route("CreateTicketTypeFeatureRequest")]
+    [Authorize(Roles = "Admin, PM")]
+    public async Task<IActionResult> CreateTicketTypeFeatureRequest([FromBody] CreateTicketTrackingRequestDto ticketDto)
+    {
+        var claimsIdentity = User.Identity as ClaimsIdentity;
+        string id = claimsIdentity?.FindFirst("id")?.Value ?? "";
+        TicketTracking ticket = new()
+        {
+            CreatedAt = DateTime.UtcNow,
+            Description = ticketDto.Description,
+            Id = 0,
+            IsSovled = false,
+            Summary = ticketDto.Summary,
+            UpdateAt = DateTime.UtcNow,
+            UserId = Guid.Parse(id),
+            Type = "FeatureRequest",
+        };
+
+        await _context.CreateTicketTrackingAsync(ticket);
+
+        return CreatedAtAction("Get", ticket.Id, ticket);
+    }
+
+    [HttpPut]
+    [Route("ResolveTicketTypeFeatureRequest/{id:int}/{isResovled:bool}")]
+    [Authorize(Roles = "Admin, RD")]
+    public async Task<IActionResult> ResolveTicketTypeFeatureRequest(int id, bool isResovled)
+    {
+        var ticket = await _context.GetTicketTrackingByIdAndTypeAsync(id, "FeatureRequest");
+        if (ticket == null) return BadRequest("Invalid id or type");
+        ticket.IsSovled = isResovled;
+        ticket.UpdateAt = DateTime.UtcNow;
+        await _context.UpdateTicketTrackingAsync(ticket);
+
+        return NoContent();
+    }
+
+    [HttpPost]
+    [Route("CreateTicketTypeTestCase")]
+    [Authorize(Roles = "Admin, QA")]
+    public async Task<IActionResult> CreateTicketTypeTestCase([FromBody] CreateTicketTrackingRequestDto ticketDto)
+    {
+        var claimsIdentity = User.Identity as ClaimsIdentity;
+        string id = claimsIdentity?.FindFirst("id")?.Value ?? "";
+        TicketTracking ticket = new()
+        {
+            CreatedAt = DateTime.UtcNow,
+            Description = ticketDto.Description,
+            Id = 0,
+            IsSovled = false,
+            Summary = ticketDto.Summary,
+            UpdateAt = DateTime.UtcNow,
+            UserId = Guid.Parse(id),
+            Type = "TestCase",
+        };
+
+        await _context.CreateTicketTrackingAsync(ticket);
+
+        return CreatedAtAction("Get", ticket.Id, ticket);
+    }
+
+    [HttpPut]
+    [Route("ResolveTicketTypeTestCase/{id:int}/{isResovled:bool}")]
+    [Authorize(Roles = "Admin, QA")]
+    public async Task<IActionResult> ResolveTicketTypeTestCase(int id, bool isResovled)
+    {
+        var ticket = await _context.GetTicketTrackingByIdAndTypeAsync(id, "TestCase");
+        if (ticket == null) return BadRequest("Invalid id or type");
+        ticket.IsSovled = isResovled;
+        ticket.UpdateAt = DateTime.UtcNow;
+        await _context.UpdateTicketTrackingAsync(ticket);
+
+        return NoContent();
+    }
+
+
     [HttpPut()]
     [Authorize(Roles = "Admin, QA")]
     public async Task<IActionResult> Put([FromBody] UpdateTicketTrackingRequestDto ticketDto)
@@ -76,7 +154,8 @@ public class TicketController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("/MarkAsSolved/{id:int}/{isSovled:bool}")]
+    [HttpPut]
+    [Route("/MarkAsSolved/{id:int}/{isSovled:bool}")]
     [Authorize(Roles = "Admin, RD")]
     public async Task<IActionResult> MarkAsSolved(int id, bool isSovled)
     {
@@ -88,7 +167,8 @@ public class TicketController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete]
+    [Route("{id:int}")]
     [Authorize(Roles = "Admin, QA")]
     public async Task<IActionResult> Delete(int id)
     {
