@@ -24,3 +24,27 @@ export const isAdmin = (roles: string[] | undefined): boolean => {
   }
   return false;
 };
+
+export const isPM = (roles: string[] | undefined): boolean => {
+  if (roles) {
+    const admin = roles.filter((i) => i === 'Admin' || i === 'PM')[0];
+    if (admin) return true;
+  }
+  return false;
+};
+
+export const isQA = (roles: string[] | undefined): boolean => {
+  if (roles) {
+    const admin = roles.filter((i) => i === 'Admin' || i === 'QA')[0];
+    if (admin) return true;
+  }
+  return false;
+};
+
+export const isRD = (roles: string[] | undefined): boolean => {
+  if (roles) {
+    const admin = roles.filter((i) => i === 'Admin' || i === 'RD')[0];
+    if (admin) return true;
+  }
+  return false;
+};

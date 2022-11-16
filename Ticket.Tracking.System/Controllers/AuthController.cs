@@ -75,18 +75,6 @@ public class AuthController : ControllerBase
                 }
                 await _userManager.AddToRoleAsync(new_user, roleName);
                 var token = await GenerateJwtToken(new_user);
-                //Response.Cookies.Append("Authorization", $"{token}", new CookieOptions
-                //{
-                //    HttpOnly = true,
-                //    Path = "/",
-                //    Secure = true,
-                //    SameSite = SameSiteMode.None,
-                //    MaxAge = TimeSpan.MaxValue,
-                //    Domain = "*",
-                //    Expires = DateTimeOffset.Now.AddDays(10),
-                //    IsEssential = true,
-
-                //});
                 return Ok(new AuthResult()
                 {
                     Result = true,

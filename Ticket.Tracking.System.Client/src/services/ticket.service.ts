@@ -23,6 +23,16 @@ export const updateTicket = (ticket: void) => {
   });
 };
 
+export const updateIsSovled = (ticket: void) => {
+  const update: any = ticket;
+  return axiosInstance.put(
+    `/api/ticket/MarkAsSolved/${update.id}/${update.isSolved}`,
+    {
+      headers: { Authorization: `bearer ${getItem('jwtToken')}` },
+    }
+  );
+};
+
 export const deleteTicket = (id: void) => {
   return axiosInstance.delete(`/api/ticket/${id}`, {
     headers: { Authorization: `bearer ${getItem('jwtToken')}` },

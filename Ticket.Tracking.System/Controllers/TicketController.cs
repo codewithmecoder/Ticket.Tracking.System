@@ -157,7 +157,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpPut]
-    [Route("/MarkAsSolved/{id:int}/{isSovled:bool}")]
+    [Route("MarkAsSolved/{id:int}/{isSovled:bool}")]
     [Authorize(Roles = "Admin, RD")]
     public async Task<IActionResult> MarkAsSolved(int id, bool isSovled)
     {

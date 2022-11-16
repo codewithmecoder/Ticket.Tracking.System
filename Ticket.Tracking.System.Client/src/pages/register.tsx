@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useState } from 'react';
-import Checkbox from '../components/Checkbox';
 import InputForm from '../components/InputForm';
 import MyHead from '../components/MyHead';
 import PrimaryButton from '../components/PrimaryButton';
@@ -17,25 +16,23 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    roleName: '',
+    roleName: 'UserApp',
   };
   // const [showHidePassword, setShowHidePassword] = useState(true);
   const [registerValues, setRegisterValues] =
     useState<RegisterInterface>(initialValues);
-  const [checkbox, setCheckbox] = useState(false);
 
   const onchangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.type === 'checkbox') {
-      setCheckbox(e.target.checked);
-    }
     setRegisterValues({
       ...registerValues,
-      [e.target.name]:
-        e.target.type === 'checkbox'
-          ? e.target.checked
-            ? 'Admin'
-            : ''
-          : e.target.value,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const onChangeSelectHandler = (e: ChangeEvent<HTMLSelectElement>) => {
+    setRegisterValues({
+      ...registerValues,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -99,12 +96,28 @@ const Register = () => {
           required={true}
           type="password"
         />
-        <Checkbox
-          label="Admin"
-          onChange={onchangeHandler}
-          name="roleName"
-          checked={checkbox}
-        />
+        <div className="w-full">
+          <label
+            htmlFor=""
+            className={`form-label inline-block mb-2 text-white
+            }`}
+          >
+            Roles
+          </label>
+          <select
+            name="roleName"
+            id=""
+            className="my-2 w-full form-control block px-3 py-1.5 text-base font-normal text-gray-900 bg-slate-300 bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-900 focus:bg-white focus:outline-none"
+            onChange={onChangeSelectHandler}
+          >
+            <option value="AppUser">App User</option>
+            <option value="PM">PM</option>
+            <option value="Admin">Admin</option>
+            <option value="QA">QA</option>
+            <option value="RD">RD</option>
+          </select>
+        </div>
+
         <div className="flex items-center justify-center w-full mt-5">
           <PrimaryButton
             type="submit"

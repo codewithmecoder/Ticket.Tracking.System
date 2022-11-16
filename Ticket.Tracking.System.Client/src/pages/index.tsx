@@ -3,7 +3,9 @@ import { AxiosError } from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { BiEdit, BiTrash } from 'react-icons/bi';
+import { BiCheckCircle, BiEdit, BiTrash } from 'react-icons/bi';
+import { HiXMark } from 'react-icons/hi2';
+import Checkbox from '../components/Checkbox';
 import DangerButton from '../components/DangerButton';
 import Loading from '../components/Loading';
 import Modal from '../components/Modal';
@@ -12,6 +14,7 @@ import Navbar from '../components/Navbar';
 import PrimaryButton from '../components/PrimaryButton';
 import TextAreaForm from '../components/TextAreaForm';
 import { CreateNewBugModel, TicketModel } from '../models/ticket.model';
+import { CurrentUserResponse } from '../models/user.model';
 import { getLoginUser } from '../services/auth.service';
 import {
   createNewBug,
@@ -19,10 +22,11 @@ import {
   createNewTestCase,
   deleteTicket,
   getTicket,
+  updateIsSovled,
   updateTicket,
 } from '../services/ticket.service';
 import { Constants } from '../utils/constants';
-import { getItem } from '../utils/tokenStorage';
+import { getItem, isPM, isQA, isRD } from '../utils/tokenStorage';
 
 const initCreateNewBugModel: CreateNewBugModel = {
   summary: '',
@@ -43,6 +47,7 @@ const initTicket: TicketModel = {
 };
 
 const Home: NextPage = () => {
+  console.log('Build Again');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTicketObj, setDeleteTicketObj] =
     useState<TicketModel>(initTicket);
@@ -127,9 +132,16 @@ const Home: NextPage = () => {
     },
   });
 
+  const updateIsSovledMutation = useMutation(updateIsSovled, {
+    onSuccess: () => {
+      ticketsQuery.refetch();
+    },
+  });
   //updateTicket
 
-  const ticketsQuery = useQuery([Constants.queries.getBug], getTicket);
+  const ticketsQuery = useQuery([Constants.queries.getBug], getTicket, {
+    cacheTime: 0,
+  });
   const onChangeCreateBugHandler = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if (updateTicketObj.id > 0) {
       setUpdateTicketObj({
@@ -209,16 +221,17 @@ const Home: NextPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 text-white p-2 text-center gap-5">
           <div>
             <div className="w-[50%] md:w-full flex items-center justify-center m-auto">
-              <PrimaryButton
-                text="New Bug"
-                type="button"
-                onClick={() => setCreateNewBugModal(true)}
-              />
+              {isQA((user.data?.data as CurrentUserResponse)?.userRoles) ? (
+                <PrimaryButton
+                  text="New Bug"
+                  type="button"
+                  onClick={() => setCreateNewBugModal(true)}
+                />
+              ) : (
+                <div className="mt-4 w-full md:w-[50%] inline-block px-6 py-2.5" />
+              )}
             </div>
             <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
-              {ticketsQuery.isError && (
-                <p className="text-red-500">Something went wrong</p>
-              )}
               {ticketsQuery.isLoading && <Loading size="medium" />}
               {ticketsQuery.isSuccess && (
                 <>
@@ -227,33 +240,65 @@ const Home: NextPage = () => {
                     .map((value, index) => (
                       <div
                         key={`ticket_${value.id}_${index}`}
-                        className="grid grid-cols-4 border-b-2 p-5"
+                        className="grid grid-cols-6 border-b-2 p-5"
                       >
-                        <div className="col-span-3 flex flex-col items-start justify-start">
-                          <p className="p-1">
-                            <b>Summay</b>
+                        <div className="col-span-4 flex flex-col items-start justify-start">
+                          <p className="p-1 flex items-center gap-2">
+                            <b>Summay</b>{' '}
+                            <span>
+                              {value.isSovled ? (
+                                <BiCheckCircle className="text-green-500" />
+                              ) : (
+                                <HiXMark className="text-red-500" />
+                              )}
+                            </span>
                           </p>
                           <p className="py-1 px-5 text-left">{value.summary}</p>
                           <p className="p-1">
                             <b>Description </b>
                           </p>
-                          <p className="py-1 px-5 text-left">{value.summary}</p>
+                          <p className="py-1 px-5 text-left">
+                            {value.description}
+                          </p>
                         </div>
-                        <div className="flex items-center mr-auto gap-4">
-                          <BiTrash
-                            className="w-7 h-7 text-red-600 cursor-pointer"
-                            onClick={() => {
-                              setDeleteTicketObj(value);
-                              setShowDeleteModal(true);
-                            }}
-                          />
-                          <BiEdit
-                            className="w-7 h-7 text-yellow-300 cursor-pointer"
-                            onClick={() => {
-                              setUpdateTicketObj(value);
-                              setCreateNewBugModal(true);
-                            }}
-                          />
+                        <div className="flex items-center w-full justify-end gap-2 col-span-2">
+                          {isQA(
+                            (user.data?.data as CurrentUserResponse)?.userRoles
+                          ) && (
+                            <div className="flex items-center mr-auto gap-2 justify-end">
+                              <BiTrash
+                                className="w-7 h-7 text-red-600 cursor-pointer"
+                                onClick={() => {
+                                  setDeleteTicketObj(value);
+                                  setShowDeleteModal(true);
+                                }}
+                              />
+                              <BiEdit
+                                className="w-7 h-7 text-yellow-300 cursor-pointer"
+                                onClick={() => {
+                                  setUpdateTicketObj(value);
+                                  setCreateNewBugModal(true);
+                                }}
+                              />
+                            </div>
+                          )}
+                          {isRD(
+                            (user.data?.data as CurrentUserResponse)?.userRoles
+                          ) && (
+                            <Checkbox
+                              id={`check_${value.id}`}
+                              label="Done"
+                              name="isSolved"
+                              checked={value.isSovled}
+                              onChange={(e) => {
+                                var isChecked = e.target.checked;
+                                updateIsSovledMutation.mutate({
+                                  id: value.id,
+                                  isSolved: isChecked,
+                                } as any);
+                              }}
+                            />
+                          )}
                         </div>
                       </div>
                     ))}
@@ -263,16 +308,17 @@ const Home: NextPage = () => {
           </div>
           <div>
             <div className="w-[50%] md:w-full flex items-center justify-center m-auto">
-              <PrimaryButton
-                text="New Feature Request"
-                type="button"
-                onClick={() => setCreateNewFeatureRequestModal(true)}
-              />
+              {isPM((user.data?.data as CurrentUserResponse)?.userRoles) ? (
+                <PrimaryButton
+                  text="New Feature Request"
+                  type="button"
+                  onClick={() => setCreateNewFeatureRequestModal(true)}
+                />
+              ) : (
+                <div className="mt-4 w-full md:w-[50%] inline-block px-6 py-2.5" />
+              )}
             </div>
             <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
-              {ticketsQuery.isError && (
-                <p className="text-red-500">Something went wrong</p>
-              )}
               {ticketsQuery.isLoading && <Loading size="medium" />}
               {ticketsQuery.isSuccess && (
                 <>
@@ -284,31 +330,44 @@ const Home: NextPage = () => {
                         className="grid grid-cols-4 border-b-2 p-5"
                       >
                         <div className="col-span-3 flex flex-col items-start justify-start">
-                          <p className="p-1">
+                          <p className="p-1 flex items-center gap-2">
                             <b>Summay</b>
+                            <span>
+                              {value.isSovled ? (
+                                <BiCheckCircle className="text-green-500" />
+                              ) : (
+                                <HiXMark className="text-red-500" />
+                              )}
+                            </span>
                           </p>
                           <p className="py-1 px-5 text-left">{value.summary}</p>
                           <p className="p-1">
                             <b>Description </b>
                           </p>
-                          <p className="py-1 px-5 text-left">{value.summary}</p>
+                          <p className="py-1 px-5 text-left">
+                            {value.description}
+                          </p>
                         </div>
-                        <div className="flex items-center mr-auto gap-4">
-                          <BiTrash
-                            className="w-7 h-7 text-red-600 cursor-pointer"
-                            onClick={() => {
-                              setDeleteTicketObj(value);
-                              setShowDeleteModal(true);
-                            }}
-                          />
-                          <BiEdit
-                            className="w-7 h-7 text-yellow-300 cursor-pointer"
-                            onClick={() => {
-                              setUpdateTicketObj(value);
-                              setCreateNewFeatureRequestModal(true);
-                            }}
-                          />
-                        </div>
+                        {isPM(
+                          (user.data?.data as CurrentUserResponse)?.userRoles
+                        ) && (
+                          <div className="flex items-center mr-auto gap-4">
+                            <BiTrash
+                              className="w-7 h-7 text-red-600 cursor-pointer"
+                              onClick={() => {
+                                setDeleteTicketObj(value);
+                                setShowDeleteModal(true);
+                              }}
+                            />
+                            <BiEdit
+                              className="w-7 h-7 text-yellow-300 cursor-pointer"
+                              onClick={() => {
+                                setUpdateTicketObj(value);
+                                setCreateNewFeatureRequestModal(true);
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                     ))}
                 </>
@@ -317,16 +376,17 @@ const Home: NextPage = () => {
           </div>
           <div>
             <div className="w-[50%] md:w-full flex items-center justify-center m-auto">
-              <PrimaryButton
-                text="New Test Case"
-                type="button"
-                onClick={() => setCreateNewTestCaseModal(true)}
-              />
+              {isQA((user.data?.data as CurrentUserResponse)?.userRoles) ? (
+                <PrimaryButton
+                  text="New Test Case"
+                  type="button"
+                  onClick={() => setCreateNewTestCaseModal(true)}
+                />
+              ) : (
+                <div className="mt-4 w-full md:w-[50%] inline-block px-6 py-2.5" />
+              )}
             </div>
             <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
-              {ticketsQuery.isError && (
-                <p className="text-red-500">Something went wrong</p>
-              )}
               {ticketsQuery.isLoading && <Loading size="medium" />}
               {ticketsQuery.isSuccess && (
                 <>
@@ -338,31 +398,44 @@ const Home: NextPage = () => {
                         className="grid grid-cols-4 border-b-2 p-5"
                       >
                         <div className="col-span-3 flex flex-col items-start justify-start">
-                          <p className="p-1">
+                          <p className="p-1 flex items-center gap-2">
                             <b>Summay</b>
+                            <span>
+                              {value.isSovled ? (
+                                <BiCheckCircle className="text-green-500" />
+                              ) : (
+                                <HiXMark className="text-red-500" />
+                              )}
+                            </span>
                           </p>
                           <p className="py-1 px-5 text-left">{value.summary}</p>
                           <p className="p-1">
                             <b>Description </b>
                           </p>
-                          <p className="py-1 px-5 text-left">{value.summary}</p>
+                          <p className="py-1 px-5 text-left">
+                            {value.description}
+                          </p>
                         </div>
-                        <div className="flex items-center mr-auto gap-4">
-                          <BiTrash
-                            className="w-7 h-7 text-red-600 cursor-pointer"
-                            onClick={() => {
-                              setDeleteTicketObj(value);
-                              setShowDeleteModal(true);
-                            }}
-                          />
-                          <BiEdit
-                            className="w-7 h-7 text-yellow-300 cursor-pointer"
-                            onClick={() => {
-                              setUpdateTicketObj(value);
-                              setCreateNewTestCaseModal(true);
-                            }}
-                          />
-                        </div>
+                        {isQA(
+                          (user.data?.data as CurrentUserResponse)?.userRoles
+                        ) && (
+                          <div className="flex items-center mr-auto gap-4">
+                            <BiTrash
+                              className="w-7 h-7 text-red-600 cursor-pointer"
+                              onClick={() => {
+                                setDeleteTicketObj(value);
+                                setShowDeleteModal(true);
+                              }}
+                            />
+                            <BiEdit
+                              className="w-7 h-7 text-yellow-300 cursor-pointer"
+                              onClick={() => {
+                                setUpdateTicketObj(value);
+                                setCreateNewTestCaseModal(true);
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                     ))}
                 </>
@@ -384,18 +457,6 @@ const Home: NextPage = () => {
             >
               <TextAreaForm
                 lableColor="text-black"
-                label="Description"
-                name="description"
-                required={true}
-                onChange={onChangeCreateBugHandler}
-                value={
-                  updateTicketObj.id > 0
-                    ? updateTicketObj.description
-                    : createNewBugValues.description
-                }
-              />
-              <TextAreaForm
-                lableColor="text-black"
                 label="Summary"
                 name="summary"
                 required={true}
@@ -404,6 +465,18 @@ const Home: NextPage = () => {
                   updateTicketObj.id > 0
                     ? updateTicketObj.summary
                     : createNewBugValues.summary
+                }
+              />
+              <TextAreaForm
+                lableColor="text-black"
+                label="Description"
+                name="description"
+                required={true}
+                onChange={onChangeCreateBugHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.description
+                    : createNewBugValues.description
                 }
               />
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
@@ -421,7 +494,12 @@ const Home: NextPage = () => {
             </form>
           </>
         }
-        onClose={() => setCreateNewBugModal(false)}
+        onClose={() => {
+          if (updateTicketObj.id > 0) {
+            setUpdateTicketObj(initTicket);
+          }
+          setCreateNewBugModal(false);
+        }}
         visible={createNewBugModal}
         width="60%"
       />
@@ -438,18 +516,6 @@ const Home: NextPage = () => {
             >
               <TextAreaForm
                 lableColor="text-black"
-                label="Description"
-                name="description"
-                required={true}
-                value={
-                  updateTicketObj.id > 0
-                    ? updateTicketObj.description
-                    : createNewFeatureRequestValues.description
-                }
-                onChange={onChangeCreateFeatureRequestHandler}
-              />
-              <TextAreaForm
-                lableColor="text-black"
                 label="Summary"
                 name="summary"
                 required={true}
@@ -459,6 +525,18 @@ const Home: NextPage = () => {
                     ? updateTicketObj.summary
                     : createNewFeatureRequestValues.summary
                 }
+              />
+              <TextAreaForm
+                lableColor="text-black"
+                label="Description"
+                name="description"
+                required={true}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.description
+                    : createNewFeatureRequestValues.description
+                }
+                onChange={onChangeCreateFeatureRequestHandler}
               />
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
               <div className="flex items-center justify-center w-full mt-5">
@@ -475,7 +553,12 @@ const Home: NextPage = () => {
             </form>
           </>
         }
-        onClose={() => setCreateNewFeatureRequestModal(false)}
+        onClose={() => {
+          if (updateTicketObj.id > 0) {
+            setUpdateTicketObj(initTicket);
+          }
+          setCreateNewFeatureRequestModal(false);
+        }}
         visible={createNewFeatureRequestModal}
         width="60%"
       />
@@ -492,18 +575,6 @@ const Home: NextPage = () => {
             >
               <TextAreaForm
                 lableColor="text-black"
-                label="Description"
-                name="description"
-                required={true}
-                onChange={onChangeCreateTestCaseHandler}
-                value={
-                  updateTicketObj.id > 0
-                    ? updateTicketObj.description
-                    : createNewTestCaseValues.description
-                }
-              />
-              <TextAreaForm
-                lableColor="text-black"
                 label="Summary"
                 name="summary"
                 required={true}
@@ -512,6 +583,18 @@ const Home: NextPage = () => {
                   updateTicketObj.id > 0
                     ? updateTicketObj.summary
                     : createNewTestCaseValues.summary
+                }
+              />
+              <TextAreaForm
+                lableColor="text-black"
+                label="Description"
+                name="description"
+                required={true}
+                onChange={onChangeCreateTestCaseHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.description
+                    : createNewTestCaseValues.description
                 }
               />
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
@@ -529,7 +612,12 @@ const Home: NextPage = () => {
             </form>
           </>
         }
-        onClose={() => setCreateNewTestCaseModal(false)}
+        onClose={() => {
+          if (updateTicketObj.id > 0) {
+            setUpdateTicketObj(initTicket);
+          }
+          setCreateNewTestCaseModal(false);
+        }}
         visible={createNewTestCaseModal}
         width="60%"
       />
