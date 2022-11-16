@@ -1,22 +1,22 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import Link from 'next/link';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import { ChangeEvent, useState } from 'react';
 import InputForm from '../components/InputForm';
 import InputFormPasswordGroup from '../components/InputFormPasswordGroup';
 import MyHead from '../components/MyHead';
 import PrimaryButton from '../components/PrimaryButton';
 import Welcome from '../components/Welcome';
-import { BaseResponse } from '../models/baseResponse.model';
-import { MessageResponseModel } from '../models/messageResponse.model';
 import { loginUser } from '../services/auth.service';
+import { setItem } from '../utils/tokenStorage';
 
 const Login = () => {
+  const router = useRouter();
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
   const [showHidePassword, setShowHidePassword] = useState(true);
   const [loginValues, setLoginValues] = useState({
-    username: '',
+    email: '',
     password: '',
   });
 
@@ -29,20 +29,11 @@ const Login = () => {
 
   const mutation = useMutation(loginUser, {
     onSuccess: (e) => {
-      if (e.data?.data?.user?.isAdmin) {
-        setLoginErrorMessage('');
-        Router.push('/');
-      } else {
-        setLoginErrorMessage('Only admin user can login to this!');
-      }
+      setItem('jwtToken', e.data.token);
+      router.push('/');
     },
     onError(error: AxiosError) {
-      if (error.code === 'ERR_NETWORK')
-        setLoginErrorMessage(error.message + '. Try again later.');
-      else {
-        const data = error.response?.data as BaseResponse<MessageResponseModel>;
-        setLoginErrorMessage(data.data.message);
-      }
+      setLoginErrorMessage(error.message + '. Try again later.');
     },
   });
 
@@ -59,11 +50,11 @@ const Login = () => {
         className="w-[80%] lg:w-[50%] h-[60%] bg-neutral-800 items-start justify-start flex flex-col p-5 gap-4"
       >
         <InputForm
-          label="Username"
-          name="username"
-          errorMessage="Username should be 3-16 characters and shouldn't include any special character!"
-          pattern="^[A-Za-z0-9]{3,16}$"
+          label="Email"
+          name="email"
+          pattern='^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'
           required={true}
+          errorMessage="Email is not valid!"
           onChange={onchangeHandler}
         />
         <InputFormPasswordGroup

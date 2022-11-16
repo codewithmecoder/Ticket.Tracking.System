@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import Checkbox from '../components/Checkbox';
 import InputForm from '../components/InputForm';
@@ -9,46 +9,51 @@ import PrimaryButton from '../components/PrimaryButton';
 import Welcome from '../components/Welcome';
 import { RegisterInterface } from '../models/auth.model';
 import { registerUser } from '../services/auth.service';
+import { setItem } from '../utils/tokenStorage';
 
 const Register = () => {
+  const router = useRouter();
   const initialValues: RegisterInterface = {
-    username: '',
-    displayName: '',
+    name: '',
     email: '',
-    phoneNumber: '',
     password: '',
-    photo: '',
-    isAdmin: false,
+    roleName: '',
   };
   // const [showHidePassword, setShowHidePassword] = useState(true);
   const [registerValues, setRegisterValues] =
     useState<RegisterInterface>(initialValues);
+  const [checkbox, setCheckbox] = useState(false);
 
   const onchangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.type === 'checkbox') {
+      setCheckbox(e.target.checked);
+    }
     setRegisterValues({
       ...registerValues,
       [e.target.name]:
-        e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+        e.target.type === 'checkbox'
+          ? e.target.checked
+            ? 'Admin'
+            : ''
+          : e.target.value,
     });
   };
 
   const mutation = useMutation(registerUser, {
-    onSuccess: () => {
-      Router.push('/login');
+    onSuccess: (e) => {
+      setItem('jwtToken', e.data.token);
+      router.push('/');
     },
   });
 
   const submitHadler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { username, displayName, email, phoneNumber, password, isAdmin } =
-      registerValues;
+    const { name, email, password, roleName } = registerValues;
     mutation.mutate({
-      username,
-      displayName,
+      name,
       email,
-      phoneNumber,
       password,
-      isAdmin,
+      roleName,
     } as any);
   };
   return (
@@ -61,51 +66,45 @@ const Register = () => {
         className="w-[100%] lg:w-[50%] h-[60%] bg-neutral-800 items-start justify-start flex flex-col p-5 gap-4"
       >
         <InputForm
-          label="Username"
-          name="username"
+          label="Name"
+          name="name"
           onChange={onchangeHandler}
-          errorMessage="Username should be 3-16 characters and shouldn't include any special character!"
+          errorMessage="Name should be 3-16 characters and shouldn't include any special character!"
           pattern="^[A-Za-z0-9]{3,16}$"
           required={true}
-        />
-        <InputForm
-          label="Display name"
-          name="displayName"
-          onChange={onchangeHandler}
-          isRequired={false}
         />
         <InputForm
           label="Email"
           type="email"
           name="email"
           onChange={onchangeHandler}
-          isRequired={false}
-        />
-        <InputForm
-          label="Phone number"
-          name="phoneNumber"
-          onChange={onchangeHandler}
-          isRequired={false}
+          pattern='^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'
+          required={true}
+          errorMessage="Email is not valid!"
         />
         <InputForm
           label="Password"
           required={true}
           name="password"
           onChange={onchangeHandler}
-          errorMessage="Password should be 8-20 characters and include at least 1 letter, 1 number and 1 special character!"
-          pattern={`^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$`}
+          errorMessage="Password should be 4-20 characters and include at least 1 letter, 1 number and 1 special character!"
+          pattern={`^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{4,20}$`}
           type="password"
         />
         <InputForm
           label="Confirm Password"
           name="confirmPassword"
-          onChange={onchangeHandler}
           errorMessage="Passwords don't match!"
           pattern={registerValues.password}
           required={true}
           type="password"
         />
-        <Checkbox label="Admin" onChange={onchangeHandler} name="isAdmin" />
+        <Checkbox
+          label="Admin"
+          onChange={onchangeHandler}
+          name="roleName"
+          checked={checkbox}
+        />
         <div className="flex items-center justify-center w-full mt-5">
           <PrimaryButton
             type="submit"

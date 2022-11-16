@@ -1,9 +1,6 @@
 export interface RegisterInterface {
-  username: string;
-  displayName: string;
+  name: string;
   email: string;
-  phoneNumber: string;
   password: string;
-  photo: string;
-  isAdmin: boolean;
+  roleName: string;
 }

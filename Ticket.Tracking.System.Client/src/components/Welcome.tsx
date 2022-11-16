@@ -11,7 +11,9 @@ const Welcome = () => {
         style={{ width: 'auto', height: 'auto' }}
       />
       <div className="flex w-full items-center justify-center h-20">
-        <p className="font-bold text-2xl text-slate-50">To Happy Quizy</p>
+        <p className="font-bold text-2xl text-slate-50">
+          To Ticket Tracking System
+        </p>
       </div>
     </>
   );

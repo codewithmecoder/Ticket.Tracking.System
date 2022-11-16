@@ -9,6 +9,11 @@ export type CurrentUserLogin = {
 };
 
 export type CurrentUserResponse = {
-  data: CurrentUserLogin;
-  success: boolean;
+  email: string;
+  id: string;
+  normalizedEmail: string;
+  normalizedUserName: string;
+  userCliams: [];
+  userName: string;
+  userRoles: string[];
 };

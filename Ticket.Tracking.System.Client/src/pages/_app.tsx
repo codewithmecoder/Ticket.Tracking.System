@@ -3,13 +3,22 @@ import type { AppProps } from 'next/app';
 
 import '../../styles/globals.css';
 import Navbar from '../components/Navbar';
-
+import { CurrentUserResponse } from '../models/user.model';
+const initaluser: CurrentUserResponse = {
+  email: '',
+  id: '',
+  normalizedEmail: '',
+  normalizedUserName: '',
+  userCliams: [],
+  userName: '',
+  userRoles: [],
+};
 function MyApp({ Component, pageProps }: AppProps) {
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
       <div className="bg-zinc-800 min-h-screen min-w-full">
-        <Navbar userData={pageProps.userData} />
+        <Navbar />
         <Component {...pageProps} />
       </div>
     </QueryClientProvider>

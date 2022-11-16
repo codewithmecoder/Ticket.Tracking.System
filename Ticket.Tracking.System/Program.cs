@@ -17,6 +17,13 @@ builder.Services.AddRepositoriesConfiguration();
 
 var app = builder.Build();
 
+
+app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
+
 app.UseSwagger(c =>
 {
     c.RouteTemplate = "/swagger/{documentName}/swagger.json";

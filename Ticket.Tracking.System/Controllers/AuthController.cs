@@ -60,8 +60,8 @@ public class AuthController : ControllerBase
             var isCreated = await _userManager.CreateAsync(new_user, user.Password);
             if (isCreated.Succeeded)
             {
-                //
-                var roleExist = await _roleManager.RoleExistsAsync(user.RoleName ?? "AppUser");
+                var roleName = string.IsNullOrEmpty(user.RoleName) ? "AppUser" : user.RoleName;
+                var roleExist = await _roleManager.RoleExistsAsync(roleName);
                 if (!roleExist)
                 {
                     var roleResult = await _roleManager.CreateAsync(new IdentityRole(user.RoleName ?? "AppUser"));
@@ -73,8 +73,17 @@ public class AuthController : ControllerBase
                     _logger.LogInformation($"The role {user.RoleName ?? "AppUser"} has been added successfully");
 
                 }
-                await _userManager.AddToRoleAsync(new_user, user.RoleName ?? "AppUser");
+                await _userManager.AddToRoleAsync(new_user, roleName);
                 var token = await GenerateJwtToken(new_user);
+                Response.Cookies.Append("Authorization", $"{token}", new CookieOptions
+                {
+                    HttpOnly = true,
+                    Path = "/",
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    MaxAge = TimeSpan.MaxValue
+
+                });
                 return Ok(new AuthResult()
                 {
                     Result = true,
@@ -115,6 +124,15 @@ public class AuthController : ControllerBase
             if (is_correct)
             {
                 var jwtToken = await GenerateJwtToken(existing_user);
+                Response.Cookies.Append("Authorization", $"{jwtToken}", new CookieOptions
+                {
+                    HttpOnly = true,
+                    Path = "/",
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    MaxAge = TimeSpan.MaxValue
+
+                });
                 return Ok(new AuthResult()
                 {
                     Token = jwtToken,
