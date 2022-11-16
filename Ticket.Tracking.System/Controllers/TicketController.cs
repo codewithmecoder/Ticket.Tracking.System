@@ -148,7 +148,9 @@ public class TicketController : ControllerBase
             UpdateAt = DateTime.UtcNow,
             UserId = Guid.Parse(ticketDto.UserId!),
             CreatedAt = ticketDto.CreatedAt,
-
+            Type = ticketDto.Type,
+            Priority = ticketDto.Priority,
+            Severity = ticketDto.Severity,
         };
         await _context.UpdateTicketTrackingAsync(ticket);
         return NoContent();

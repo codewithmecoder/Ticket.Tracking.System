@@ -4,6 +4,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { BiEdit, BiTrash } from 'react-icons/bi';
+import DangerButton from '../components/DangerButton';
 import Loading from '../components/Loading';
 import Modal from '../components/Modal';
 import MyHead from '../components/MyHead';
@@ -16,7 +17,9 @@ import {
   createNewBug,
   createNewFeatureRequest,
   createNewTestCase,
+  deleteTicket,
   getTicket,
+  updateTicket,
 } from '../services/ticket.service';
 import { Constants } from '../utils/constants';
 import { getItem } from '../utils/tokenStorage';
@@ -26,7 +29,25 @@ const initCreateNewBugModel: CreateNewBugModel = {
   description: '',
 };
 
+const initTicket: TicketModel = {
+  summary: '',
+  description: '',
+  id: 0,
+  isSovled: false,
+  userId: '',
+  createdAt: undefined,
+  updateAt: undefined,
+  severity: false,
+  priority: 0,
+  type: '',
+};
+
 const Home: NextPage = () => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTicketObj, setDeleteTicketObj] =
+    useState<TicketModel>(initTicket);
+  const [updateTicketObj, setUpdateTicketObj] =
+    useState<TicketModel>(initTicket);
   const [createNewBugModal, setCreateNewBugModal] = useState(false);
   const [createNewFeatureRequestModal, setCreateNewFeatureRequestModal] =
     useState(false);
@@ -82,44 +103,103 @@ const Home: NextPage = () => {
     },
   });
 
+  const deleteTicketMutation = useMutation(deleteTicket, {
+    onSuccess: () => {
+      setDeleteTicketObj(initTicket);
+      ticketsQuery.refetch();
+      setShowDeleteModal(false);
+    },
+    onError: (e) => {
+      console.log(e);
+    },
+  });
+
+  const updateTicketMutation = useMutation(updateTicket, {
+    onSuccess: () => {
+      setUpdateTicketObj(initTicket);
+      ticketsQuery.refetch();
+      setCreateNewBugModal(false);
+      setCreateNewFeatureRequestModal(false);
+      setCreateNewTestCaseModal(false);
+    },
+    onError: (e) => {
+      console.log(e);
+    },
+  });
+
+  //updateTicket
+
   const ticketsQuery = useQuery([Constants.queries.getBug], getTicket);
   const onChangeCreateBugHandler = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setCreateNewBugValues({
-      ...createNewBugValues,
-      [e.target.name]: e.target.value,
-    });
+    if (updateTicketObj.id > 0) {
+      setUpdateTicketObj({
+        ...updateTicketObj,
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      setCreateNewBugValues({
+        ...createNewBugValues,
+        [e.target.name]: e.target.value,
+      });
+    }
   };
   const onChangeCreateFeatureRequestHandler = (
     e: ChangeEvent<HTMLTextAreaElement>
   ) => {
-    setCreateNewFeatureRequestValues({
-      ...createNewFeatureRequestValues,
-      [e.target.name]: e.target.value,
-    });
+    if (updateTicketObj.id > 0) {
+      setUpdateTicketObj({
+        ...updateTicketObj,
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      setCreateNewFeatureRequestValues({
+        ...createNewFeatureRequestValues,
+        [e.target.name]: e.target.value,
+      });
+    }
   };
 
   const onChangeCreateTestCaseHandler = (
     e: ChangeEvent<HTMLTextAreaElement>
   ) => {
-    setCreateNewTestCaseValues({
-      ...createNewTestCaseValues,
-      [e.target.name]: e.target.value,
-    });
+    if (updateTicketObj.id > 0) {
+      setUpdateTicketObj({
+        ...updateTicketObj,
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      setCreateNewTestCaseValues({
+        ...createNewTestCaseValues,
+        [e.target.name]: e.target.value,
+      });
+    }
   };
 
   const createNewBugHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createNewBugMutation.mutate(createNewBugValues as any);
+    if (updateTicketObj.id > 0) {
+      updateTicketMutation.mutate(updateTicketObj as any);
+    } else {
+      createNewBugMutation.mutate(createNewBugValues as any);
+    }
   };
   const createNewFeatureRequestHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createNewFeatureRequestMutation.mutate(
-      createNewFeatureRequestValues as any
-    );
+    if (updateTicketObj.id > 0) {
+      updateTicketMutation.mutate(updateTicketObj as any);
+    } else {
+      createNewFeatureRequestMutation.mutate(
+        createNewFeatureRequestValues as any
+      );
+    }
   };
   const createNewTestCaseHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createNewTestCaseMutation.mutate(createNewTestCaseValues as any);
+    if (updateTicketObj.id > 0) {
+      updateTicketMutation.mutate(updateTicketObj as any);
+    } else {
+      createNewTestCaseMutation.mutate(createNewTestCaseValues as any);
+    }
   };
   return (
     <>
@@ -160,8 +240,20 @@ const Home: NextPage = () => {
                           <p className="py-1 px-5 text-left">{value.summary}</p>
                         </div>
                         <div className="flex items-center mr-auto gap-4">
-                          <BiTrash className="w-7 h-7 text-red-600 cursor-pointer" />
-                          <BiEdit className="w-7 h-7 text-yellow-300 cursor-pointer" />
+                          <BiTrash
+                            className="w-7 h-7 text-red-600 cursor-pointer"
+                            onClick={() => {
+                              setDeleteTicketObj(value);
+                              setShowDeleteModal(true);
+                            }}
+                          />
+                          <BiEdit
+                            className="w-7 h-7 text-yellow-300 cursor-pointer"
+                            onClick={() => {
+                              setUpdateTicketObj(value);
+                              setCreateNewBugModal(true);
+                            }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -202,8 +294,20 @@ const Home: NextPage = () => {
                           <p className="py-1 px-5 text-left">{value.summary}</p>
                         </div>
                         <div className="flex items-center mr-auto gap-4">
-                          <BiTrash className="w-7 h-7 text-red-600 cursor-pointer" />
-                          <BiEdit className="w-7 h-7 text-yellow-300 cursor-pointer" />
+                          <BiTrash
+                            className="w-7 h-7 text-red-600 cursor-pointer"
+                            onClick={() => {
+                              setDeleteTicketObj(value);
+                              setShowDeleteModal(true);
+                            }}
+                          />
+                          <BiEdit
+                            className="w-7 h-7 text-yellow-300 cursor-pointer"
+                            onClick={() => {
+                              setUpdateTicketObj(value);
+                              setCreateNewFeatureRequestModal(true);
+                            }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -244,8 +348,20 @@ const Home: NextPage = () => {
                           <p className="py-1 px-5 text-left">{value.summary}</p>
                         </div>
                         <div className="flex items-center mr-auto gap-4">
-                          <BiTrash className="w-7 h-7 text-red-600 cursor-pointer" />
-                          <BiEdit className="w-7 h-7 text-yellow-300 cursor-pointer" />
+                          <BiTrash
+                            className="w-7 h-7 text-red-600 cursor-pointer"
+                            onClick={() => {
+                              setDeleteTicketObj(value);
+                              setShowDeleteModal(true);
+                            }}
+                          />
+                          <BiEdit
+                            className="w-7 h-7 text-yellow-300 cursor-pointer"
+                            onClick={() => {
+                              setUpdateTicketObj(value);
+                              setCreateNewTestCaseModal(true);
+                            }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -271,7 +387,12 @@ const Home: NextPage = () => {
                 label="Description"
                 name="description"
                 required={true}
-                onChange={(e) => onChangeCreateBugHandler}
+                onChange={onChangeCreateBugHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.description
+                    : createNewBugValues.description
+                }
               />
               <TextAreaForm
                 lableColor="text-black"
@@ -279,13 +400,22 @@ const Home: NextPage = () => {
                 name="summary"
                 required={true}
                 onChange={onChangeCreateBugHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.summary
+                    : createNewBugValues.summary
+                }
               />
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
               <div className="flex items-center justify-center w-full mt-5">
                 <PrimaryButton
                   type="submit"
-                  text="Create"
-                  isLoading={createNewBugMutation.isLoading}
+                  text={updateTicketObj.id > 0 ? 'Update' : 'Create'}
+                  isLoading={
+                    updateTicketObj.id > 0
+                      ? updateTicketMutation.isLoading
+                      : createNewBugMutation.isLoading
+                  }
                 />
               </div>
             </form>
@@ -311,6 +441,11 @@ const Home: NextPage = () => {
                 label="Description"
                 name="description"
                 required={true}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.description
+                    : createNewFeatureRequestValues.description
+                }
                 onChange={onChangeCreateFeatureRequestHandler}
               />
               <TextAreaForm
@@ -319,13 +454,22 @@ const Home: NextPage = () => {
                 name="summary"
                 required={true}
                 onChange={onChangeCreateFeatureRequestHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.summary
+                    : createNewFeatureRequestValues.summary
+                }
               />
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
               <div className="flex items-center justify-center w-full mt-5">
                 <PrimaryButton
                   type="submit"
-                  text="Create"
-                  isLoading={createNewFeatureRequestMutation.isLoading}
+                  text={updateTicketObj.id > 0 ? 'Update' : 'Create'}
+                  isLoading={
+                    updateTicketObj.id > 0
+                      ? updateTicketMutation.isLoading
+                      : createNewFeatureRequestMutation.isLoading
+                  }
                 />
               </div>
             </form>
@@ -352,6 +496,11 @@ const Home: NextPage = () => {
                 name="description"
                 required={true}
                 onChange={onChangeCreateTestCaseHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.description
+                    : createNewTestCaseValues.description
+                }
               />
               <TextAreaForm
                 lableColor="text-black"
@@ -359,13 +508,22 @@ const Home: NextPage = () => {
                 name="summary"
                 required={true}
                 onChange={onChangeCreateTestCaseHandler}
+                value={
+                  updateTicketObj.id > 0
+                    ? updateTicketObj.summary
+                    : createNewTestCaseValues.summary
+                }
               />
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
               <div className="flex items-center justify-center w-full mt-5">
                 <PrimaryButton
                   type="submit"
-                  text="Create"
-                  isLoading={createNewTestCaseMutation.isLoading}
+                  text={updateTicketObj.id > 0 ? 'Update' : 'Create'}
+                  isLoading={
+                    updateTicketObj.id > 0
+                      ? updateTicketMutation.isLoading
+                      : createNewTestCaseMutation.isLoading
+                  }
                 />
               </div>
             </form>
@@ -374,6 +532,35 @@ const Home: NextPage = () => {
         onClose={() => setCreateNewTestCaseModal(false)}
         visible={createNewTestCaseModal}
         width="60%"
+      />
+
+      <Modal
+        child={
+          <>
+            <div className="flex items-center justify-center p-3">
+              <p className="text-md">Are you sure want to delete?</p>
+            </div>
+            <div className="flex gap-5 p-4">
+              <PrimaryButton
+                text="No"
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+              />
+              <DangerButton
+                text="Yes"
+                type="button"
+                isLoading={deleteTicketMutation.isLoading}
+                onClick={() => {
+                  deleteTicketMutation.mutate(deleteTicketObj.id as any);
+                }}
+              />
+            </div>
+          </>
+        }
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        height="auto"
+        width="auto"
       />
     </>
   );

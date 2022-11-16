@@ -17,6 +17,18 @@ export const createNewFeatureRequest = (newTicket: void) => {
   );
 };
 
+export const updateTicket = (ticket: void) => {
+  return axiosInstance.put(`/api/ticket`, ticket, {
+    headers: { Authorization: `bearer ${getItem('jwtToken')}` },
+  });
+};
+
+export const deleteTicket = (id: void) => {
+  return axiosInstance.delete(`/api/ticket/${id}`, {
+    headers: { Authorization: `bearer ${getItem('jwtToken')}` },
+  });
+};
+
 export const createNewTestCase = (newTicket: void) => {
   return axiosInstance.post('/api/ticket/CreateTicketTypeTestCase', newTicket, {
     headers: { Authorization: `bearer ${getItem('jwtToken')}` },

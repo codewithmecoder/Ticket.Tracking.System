@@ -8,4 +8,7 @@ public class UpdateTicketTrackingRequestDto
     public string Description { get; set; } = string.Empty;
     public bool IsSovled { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool Severity { get; set; }
+    public PriorityTicket Priority { get; set; }
+    public string? Type { get; set; }
 }

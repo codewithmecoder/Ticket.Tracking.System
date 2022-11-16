@@ -9,8 +9,8 @@ export type TicketModel = {
   description: string;
   isSovled: boolean;
   userId: string;
-  createdAt: Date;
-  updateAt: Date;
+  createdAt?: Date;
+  updateAt?: Date;
   severity: boolean;
   priority: number;
   type: string;
