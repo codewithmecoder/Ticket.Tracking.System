@@ -124,7 +124,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Navbar user={user.data?.data} />
-      <div className="w-[100%] m-auto max-h-[90vh] overflow-hidden">
+      <div className="w-[100%] m-auto lg:max-h-[90vh] overflow-hidden">
         <MyHead title="Ticket Tracking System" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 text-white p-2 text-center gap-5">
           <div>
@@ -135,7 +135,7 @@ const Home: NextPage = () => {
                 onClick={() => setCreateNewBugModal(true)}
               />
             </div>
-            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 overflow-y-scroll max:h-[80vh] h-[80vh] overflow-auto">
+            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
               {ticketsQuery.isError && (
                 <p className="text-red-500">Something went wrong</p>
               )}
@@ -177,7 +177,7 @@ const Home: NextPage = () => {
                 onClick={() => setCreateNewFeatureRequestModal(true)}
               />
             </div>
-            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3">
+            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
               {ticketsQuery.isError && (
                 <p className="text-red-500">Something went wrong</p>
               )}
@@ -219,7 +219,7 @@ const Home: NextPage = () => {
                 onClick={() => setCreateNewTestCaseModal(true)}
               />
             </div>
-            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3">
+            <div className="bg-gray-900 bg-opacity-50 shadow-md rounded mt-3 md:overflow-y-scroll md:max:h-[80vh] md:h-[80vh] md:overflow-auto">
               {ticketsQuery.isError && (
                 <p className="text-red-500">Something went wrong</p>
               )}
