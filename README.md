@@ -37,6 +37,8 @@ yarn dev
 
 - [Click me to visit](https://ticket-tracking-system.vercel.app/)
 
+- [API Document](https://ticket-tracking-system.herokuapp.com/swagger/index.html)
+
 ### Credentials
 
 ##### RD User
