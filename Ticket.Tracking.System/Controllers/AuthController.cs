@@ -115,18 +115,6 @@ public class AuthController : ControllerBase
             if (is_correct)
             {
                 var jwtToken = await GenerateJwtToken(existing_user);
-                //Response.Cookies.Append("Authorization", $"{jwtToken}", new CookieOptions
-                //{
-                //    HttpOnly = true,
-                //    Path = "/",
-                //    Secure = true,
-                //    SameSite = SameSiteMode.None,
-                //    MaxAge = TimeSpan.MaxValue,
-                //    Domain = "*",
-                //    Expires = DateTimeOffset.Now.AddDays(10),
-                //    IsEssential = true,
-
-                //});
                 return Ok(new AuthResult()
                 {
                     Token = jwtToken,
