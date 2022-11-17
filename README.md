@@ -6,6 +6,10 @@
 git clone https://github.com/codewithmecoder/Ticket.Tracking.System.git
 ```
 
+### Server
+
+`Make sure you check the Connectoin data and change it or you can use my production database.`
+
 ### Client
 
 create file named .env.local in root/Ticket.Tracking.System.Client
@@ -20,6 +24,11 @@ yarn
 yarn dev
 ```
 
-#### Design Diagram
+## Design Diagram
 
-- :paperclip: [Ticket-Tracking-System.drawio](https://github.com/codewithmecoder/codewithmecoder/blob/main/resumes/Sokcheanith_Ros_Resume.pdf)
+#### To View The Diagram
+
+- Click here [draw.io](https://app.diagrams.net/)
+- Create a black template
+- Drag the file name `Ticket-Tracking-System.drawio` in the root folder
+- That's it you can view it in a full functional
