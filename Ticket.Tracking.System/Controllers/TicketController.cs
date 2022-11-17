@@ -51,6 +51,8 @@ public class TicketController : ControllerBase
             Summary = ticketDto.Summary,
             UpdateAt = DateTime.UtcNow,
             UserId = Guid.Parse(id),
+            Priority = ticketDto.Priority,
+            Severity = ticketDto.Severity,
         };
 
         await _context.CreateTicketTrackingAsync(ticket);
@@ -75,6 +77,8 @@ public class TicketController : ControllerBase
             UpdateAt = DateTime.UtcNow,
             UserId = Guid.Parse(id),
             Type = "FeatureRequest",
+            Priority = ticketDto.Priority,
+            Severity = ticketDto.Severity,
         };
 
         await _context.CreateTicketTrackingAsync(ticket);
@@ -113,6 +117,8 @@ public class TicketController : ControllerBase
             UpdateAt = DateTime.UtcNow,
             UserId = Guid.Parse(id),
             Type = "TestCase",
+            Priority = ticketDto.Priority,
+            Severity = ticketDto.Severity,
         };
 
         await _context.CreateTicketTrackingAsync(ticket);

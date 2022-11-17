@@ -74,7 +74,11 @@ const Login = () => {
           />
           <p className="text-red-500">{loginErrorMessage}</p>
           <div className="flex items-center justify-center w-full mt-5">
-            <PrimaryButton type="submit" text="Login" />
+            <PrimaryButton
+              type="submit"
+              text="Login"
+              isLoading={mutation.isLoading}
+            />
           </div>
         </form>
         <div className="flex items-center justify-center w-full mt-5">

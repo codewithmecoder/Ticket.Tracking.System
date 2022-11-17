@@ -3,4 +3,5 @@ export const Constants = {
     getMe: 'GETME',
     getBug: 'GETBUG',
   },
+  priorities: ['None', 'Low', 'Medium', 'High'],
 };

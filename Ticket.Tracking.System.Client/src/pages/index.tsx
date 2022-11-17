@@ -33,6 +33,8 @@ import { getItem, isPM, isQA, isRD } from '../utils/tokenStorage';
 const initCreateNewBugModel: CreateNewBugModel = {
   summary: '',
   description: '',
+  severity: false,
+  priority: 0,
 };
 
 const initTicket: TicketModel = {
@@ -49,7 +51,6 @@ const initTicket: TicketModel = {
 };
 
 const Home: NextPage = () => {
-  console.log('Build Again');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTicketObj, setDeleteTicketObj] =
     useState<TicketModel>(initTicket);
@@ -83,9 +84,7 @@ const Home: NextPage = () => {
       setCreateNewBugModal(false);
       ticketsQuery.refetch();
     },
-    onError: (e) => {
-      console.log(e);
-    },
+    onError: () => {},
   });
 
   const createNewFeatureRequestMutation = useMutation(createNewFeatureRequest, {
@@ -94,9 +93,7 @@ const Home: NextPage = () => {
       setCreateNewFeatureRequestModal(false);
       ticketsQuery.refetch();
     },
-    onError: (e) => {
-      console.log(e);
-    },
+    onError: () => {},
   });
 
   const createNewTestCaseMutation = useMutation(createNewTestCase, {
@@ -105,9 +102,7 @@ const Home: NextPage = () => {
       setCreateNewTestCaseModal(false);
       ticketsQuery.refetch();
     },
-    onError: (e) => {
-      console.log(e);
-    },
+    onError: () => {},
   });
 
   const deleteTicketMutation = useMutation(deleteTicket, {
@@ -116,9 +111,7 @@ const Home: NextPage = () => {
       ticketsQuery.refetch();
       setShowDeleteModal(false);
     },
-    onError: (e) => {
-      console.log(e);
-    },
+    onError: () => {},
   });
 
   const updateTicketMutation = useMutation(updateTicket, {
@@ -129,9 +122,7 @@ const Home: NextPage = () => {
       setCreateNewFeatureRequestModal(false);
       setCreateNewTestCaseModal(false);
     },
-    onError: (e) => {
-      console.log(e);
-    },
+    onError: () => {},
   });
 
   const updateIsSovledMutation = useMutation(updateIsSovled, {
@@ -263,8 +254,19 @@ const Home: NextPage = () => {
                       >
                         <div className="col-span-4 flex flex-col items-start justify-start">
                           <p className="p-1 flex items-center gap-2">
-                            <b>Summay</b>{' '}
-                            <span>
+                            <b>Summay</b>
+                            <p
+                              className={`text-[11px] mt-1 border rounded-md p-[2px] ${
+                                value.priority === 2
+                                  ? 'bg-yellow-600'
+                                  : value.priority === 3
+                                  ? 'bg-red-400'
+                                  : 'bg-gray-500'
+                              }`}
+                            >
+                              {Constants.priorities[value.priority]}
+                            </p>
+                            <span className="mt-1">
                               {value.isSovled ? (
                                 <BiCheckCircle className="text-green-500" />
                               ) : (
@@ -354,7 +356,18 @@ const Home: NextPage = () => {
                         <div className="col-span-4 flex flex-col items-start justify-start">
                           <p className="p-1 flex items-center gap-2">
                             <b>Summay</b>
-                            <span>
+                            <p
+                              className={`text-[11px] mt-1 border rounded-md p-[2px] ${
+                                value.priority === 2
+                                  ? 'bg-yellow-600'
+                                  : value.priority === 3
+                                  ? 'bg-red-400'
+                                  : 'bg-gray-500'
+                              }`}
+                            >
+                              {Constants.priorities[value.priority]}
+                            </p>
+                            <span className="mt-1">
                               {value.isSovled ? (
                                 <BiCheckCircle className="text-green-500" />
                               ) : (
@@ -446,7 +459,18 @@ const Home: NextPage = () => {
                         <div className="col-span-4 flex flex-col items-start justify-start">
                           <p className="p-1 flex items-center gap-2">
                             <b>Summay</b>
-                            <span>
+                            <p
+                              className={`text-[11px] mt-1 border rounded-md p-[2px] ${
+                                value.priority === 2
+                                  ? 'bg-yellow-600'
+                                  : value.priority === 3
+                                  ? 'bg-red-400'
+                                  : 'bg-gray-500'
+                              }`}
+                            >
+                              {Constants.priorities[value.priority]}
+                            </p>
+                            <span className="mt-1">
                               {value.isSovled ? (
                                 <BiCheckCircle className="text-green-500" />
                               ) : (
@@ -541,6 +565,61 @@ const Home: NextPage = () => {
                     : createNewBugValues.description
                 }
               />
+              <div className="flex items-center justify-between gap-5">
+                <select
+                  name="priority"
+                  className="my-2 w-full form-control block px-3 py-1.5 text-base font-normal text-gray-900 bg-slate-300 bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-900 focus:bg-white focus:outline-none"
+                  onChange={(e) => {
+                    if (updateTicketObj.id > 0) {
+                      setUpdateTicketObj({
+                        ...updateTicketObj,
+                        priority: parseInt(e.target.value),
+                      });
+                    } else {
+                      setCreateNewBugValues({
+                        ...createNewBugValues,
+                        priority: parseInt(e.target.value),
+                      });
+                    }
+                  }}
+                >
+                  {Constants.priorities.map((value, index) => (
+                    <option
+                      value={index}
+                      selected={
+                        updateTicketObj.id > 0 &&
+                        updateTicketObj.priority === index
+                      }
+                      key={`priority_${value}_${index}`}
+                    >
+                      {value}
+                    </option>
+                  ))}
+                </select>
+                <Checkbox
+                  label="Severity"
+                  name="severity"
+                  labelColor="text-black"
+                  checked={
+                    updateTicketObj.id > 0
+                      ? updateTicketObj.severity
+                      : createNewBugValues.severity
+                  }
+                  onChange={(e) => {
+                    if (updateTicketObj.id > 0) {
+                      setUpdateTicketObj({
+                        ...updateTicketObj,
+                        severity: e.target.checked,
+                      });
+                    } else {
+                      setCreateNewBugValues({
+                        ...createNewBugValues,
+                        severity: e.target.checked,
+                      });
+                    }
+                  }}
+                />
+              </div>
               {/* <p className="text-red-500">{loginErrorMessage}</p> */}
               <div className="flex items-center justify-center w-full mt-5">
                 <PrimaryButton

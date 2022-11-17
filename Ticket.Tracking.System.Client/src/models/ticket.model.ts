@@ -1,6 +1,8 @@
 export type CreateNewBugModel = {
   summary: string;
   description: string;
+  severity: boolean;
+  priority: number;
 };
 
 export type TicketModel = {
