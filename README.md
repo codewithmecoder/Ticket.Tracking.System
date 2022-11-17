@@ -32,3 +32,25 @@ yarn dev
 - Create a black template
 - Drag the file name `Ticket-Tracking-System.drawio` in the root folder
 - That's it you can view it in a full functional
+
+## View the publish site
+
+- [Click me to visit](https://ticket-tracking-system.vercel.app/)
+
+### Credentials
+
+##### RD User
+
+`Email: rduser@gmail.com Password: Rduser123!`
+
+##### QA User
+
+`Email: qauser@gmail.com Password: Qauser123!`
+
+##### PM User
+
+`Email: pmuser@gmail.com Password: Pmuser123!`
+
+##### Admin User
+
+`Email: admin@gmail.com Password: Admin123!`
