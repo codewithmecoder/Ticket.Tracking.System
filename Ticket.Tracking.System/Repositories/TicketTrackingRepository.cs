@@ -23,17 +23,17 @@ public class TicketTrackingRepository : BaseEfRepository<TicketTracking>, ITicke
 
     public async Task<TicketTracking?> GetTicketTrackingByIdAndTypeAsync(int id, string type)
     {
-        return await _dbContext.TicketTrackings!.FirstOrDefaultAsync(x => x.Id == id && x.Type == type);
+        return await _dbContext.TicketTrackings!.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.Type == type);
     }
 
     public async Task<TicketTracking?> GetTicketTrackingByIdAsync(int id)
     {
-        return await _dbContext.TicketTrackings!.FirstOrDefaultAsync(x => x.Id == id);
+        return await _dbContext.TicketTrackings!.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<List<TicketTracking>> GetTicketTrackingsAsync()
     {
-        var tickets = await _dbContext.TicketTrackings!.ToListAsync();
+        var tickets = await _dbContext.TicketTrackings!.OrderByDescending(i => i.Priority).OrderBy(i => i.IsSovled).ThenBy(i => i.Severity).ToListAsync();
         return tickets;
     }
 

@@ -36,7 +36,11 @@ const Login = () => {
       router.push('/');
     },
     onError(error: AxiosError) {
-      setLoginErrorMessage(error.message + '. Try again later.');
+      if (error.response?.data) {
+        setLoginErrorMessage((error.response?.data as any)?.errors[0]);
+      } else {
+        setLoginErrorMessage(error.message + '. Try again later.');
+      }
     },
   });
 

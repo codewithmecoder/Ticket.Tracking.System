@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Ticket.Tracking.System.Models;
 using Ticket.Tracking.System.Models.DTOS;
@@ -142,14 +141,16 @@ public class TicketController : ControllerBase
 
 
     [HttpPut()]
-    [Authorize(Roles = "Admin, QA")]
+    [Authorize(Roles = "Admin, QA, PM")]
     public async Task<IActionResult> Put([FromBody] UpdateTicketTrackingRequestDto ticketDto)
     {
-        TicketTracking ticket = new()
+        var ticket = await _context.GetTicketTrackingByIdAsync(ticketDto.Id);
+        if (ticket == null) return BadRequest("Invalid id");
+        TicketTracking newTicket = new()
         {
             Description = ticketDto.Description,
             Id = ticketDto.Id,
-            IsSovled = false,
+            IsSovled = ticket.IsSovled,
             Summary = ticketDto.Summary,
             UpdateAt = DateTime.UtcNow,
             UserId = Guid.Parse(ticketDto.UserId!),
@@ -158,7 +159,7 @@ public class TicketController : ControllerBase
             Priority = ticketDto.Priority,
             Severity = ticketDto.Severity,
         };
-        await _context.UpdateTicketTrackingAsync(ticket);
+        await _context.UpdateTicketTrackingAsync(newTicket);
         return NoContent();
     }
 
