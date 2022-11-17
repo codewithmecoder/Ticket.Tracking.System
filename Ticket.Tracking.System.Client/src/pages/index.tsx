@@ -552,7 +552,9 @@ const Home: NextPage = () => {
         child={
           <>
             <div className="flex justify-center items-center mt-4">
-              <b>Create New Bugs</b>
+              <b>
+                {updateTicketObj.id > 0 ? 'Update Bugs' : 'Create New Bugs'}
+              </b>
             </div>
             <form
               onSubmit={createNewBugHandler}
@@ -666,7 +668,11 @@ const Home: NextPage = () => {
         child={
           <>
             <div className="flex justify-center items-center mt-4">
-              <b>Create New Feature Request</b>
+              <b>
+                {updateTicketObj.id > 0
+                  ? 'Update Feature Request'
+                  : 'Create New Feature Request'}
+              </b>
             </div>
             <form
               onSubmit={createNewFeatureRequestHandler}
@@ -780,7 +786,11 @@ const Home: NextPage = () => {
         child={
           <>
             <div className="flex justify-center items-center mt-4">
-              <b>Create New Test Case</b>
+              <b>
+                {updateTicketObj.id > 0
+                  ? 'Update Test Case'
+                  : 'Create New Test Case'}
+              </b>
             </div>
             <form
               onSubmit={createNewTestCaseHandler}
