@@ -221,7 +221,7 @@ public class AuthController : ControllerBase
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddHours(1),
+            Expires = DateTime.Now.AddMonths(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
         var token = jwtTokenHandler.CreateToken(tokenDescriptor);
